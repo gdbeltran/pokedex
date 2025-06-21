@@ -13,6 +13,7 @@ type cliConfig struct {
 	pokeapiClient    pokeapi.Client
 	nextLocationsURL *string
 	prevLocationsURL *string
+	areaName         *string
 }
 
 type cliCommand struct {
@@ -32,6 +33,7 @@ func startRepl(cfg *cliConfig) {
 		}
 
 		commandName := input[0]
+		commandParameter := input[1]
 
 		command, exists := getCommands()[commandName]
 		if exists {
@@ -75,6 +77,11 @@ func getCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Get previous page of locations",
 			callback:    commandMapP,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Explore a location",
+			callback:    commandExplore,
 		},
 	}
 }
