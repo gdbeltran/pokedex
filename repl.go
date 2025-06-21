@@ -5,9 +5,23 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/gdbeltran/pokedexcli/internal/pokeapi"
 )
 
-func startRepl() {
+type cliConfig struct {
+	pokeapiClient    pokeapi.Client
+	nextLocationsURL *string
+	prevLocationsURL *string
+}
+
+type cliCommand struct {
+	name        string
+	description string
+	callback    func(*cliConfig) error
+}
+
+func startRepl(cfg *cliConfig) {
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("Pokedex > ")
@@ -21,7 +35,7 @@ func startRepl() {
 
 		command, exists := getCommands()[commandName]
 		if exists {
-			err := command.callback()
+			err := command.callback(cfg)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -40,12 +54,6 @@ func cleanInput(text string) []string {
 	return words
 }
 
-type cliCommand struct {
-	name        string
-	description string
-	callback    func() error
-}
-
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"exit": {
@@ -57,6 +65,16 @@ func getCommands() map[string]cliCommand {
 			name:        "help",
 			description: "Show available commands",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Get next page of locations",
+			callback:    commandMapN,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Get previous page of locations",
+			callback:    commandMapP,
 		},
 	}
 }
